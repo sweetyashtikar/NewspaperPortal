@@ -1,5 +1,5 @@
 
-import Employee from "../model/Employee.js";
+import Employee from "../../model/EmployeeModal/Employee.js";
 import bcrypt from "bcryptjs"
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';

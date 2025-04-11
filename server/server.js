@@ -7,9 +7,17 @@ import cors from "cors"
 import './config/passport.js'; // Load passport strategies
 
 //Routes
-import UserRoute from "./routes/authRoute.js"
-import EmployeeRoute from "./routes/EmployeeRoute.js";
-import adminCreate from "./routes/adminCreateRoute.js"
+//super Admin routes
+import superAdminRoutes from "./routes/superAdminRoute/superAdminRoutes.js";
+import adminCreate from "./routes/superAdminRoute/adminCreateRoute.js";
+
+//Admin Routes
+import adminRoute from "./routes/AdminRoute/adminRoute.js"
+//User Routes
+import UserRoute from "./routes/UserRoute/authRoute.js"
+
+//Employee Routes
+import EmployeeRoute from "./routes/employeeRoute/EmployeeRoute.js";
 
 
 const app = express();
@@ -27,8 +35,9 @@ mongoose.connect(process.env.MONGO_URI,{ useNewUrlParser: true, useUnifiedTopolo
 //using of the routes
 app.use('/auth', UserRoute)
 app.use("/employee",EmployeeRoute)
-app.use("/superadmin",adminCreate )
-
+app.use("/superadmin",adminCreate ) //api for creating admins , this api is only available for super admins
+app.use("/super-admin", superAdminRoutes) //only for login and register for the super admins
+app.use("/admin", adminRoute) //this is login for admins
 
 
 app.get('/',(req,res)=>{
