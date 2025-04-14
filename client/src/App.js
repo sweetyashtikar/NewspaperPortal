@@ -8,7 +8,7 @@ import SuperAdminCreateRegister from './LoginComponent/AdminLogin/CreateAdminFor
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import CreateAdminForm from './LoginComponent/AdminLogin/CreateAdminForm.jsx';
-
+import Dashboard from "./LoginComponent/AdminLogin/Dashboard.jsx"
 function App() {
   return (
     <div className="App">
@@ -21,6 +21,7 @@ function App() {
           <Route path='/admin-login' element={<AdminLogin />} />
           <Route path='/super-admin-create-register' element={<SuperAdminCreateRegister />} />
           <Route path='/admin-create-register' element={<CreateAdminForm />} />
+          <Route path='/' element={<Dashboard />} />
 
         </Routes>
       </BrowserRouter>

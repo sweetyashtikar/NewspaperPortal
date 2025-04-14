@@ -16,6 +16,7 @@ const CreateAdminForm = () => {
       console.log("decoded", decodedToken)
       if (decodedToken.role === "superAdmin") {
         setIsSuperAdmin(true);
+       
       } else {
        alert("unathorised user")
       }
@@ -136,6 +137,7 @@ const CreateAdminForm = () => {
       setMessage(res.data.msg);
       resetForm();
       alert("form submitted")
+      navigate('/')
     } catch (err) {
       console.log("error", err)
       setError(

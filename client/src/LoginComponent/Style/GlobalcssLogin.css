@@ -632,3 +632,104 @@
   font-size: 14px; /* Font size */
   margin-top: 10px; /* Space above the success message */
 }
+
+/* =====================CreateAdminForm================================= */
+/* Container Styling */
+.createnewadminregister {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f5f6fa;
+  padding: 40px 10px;
+}
+
+/* Box Styling */
+.adminlogin-box {
+  background: #fff;
+  padding: 30px 40px;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 500px;
+}
+
+/* Heading */
+.adminlogin-heading {
+  font-size: 28px;
+  margin-bottom: 25px;
+  text-align: center;
+  color: #333;
+  font-weight: bold;
+}
+
+/* Form */
+.signup-form2 {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Input Fields */
+.signup-form2 input[type="text"],
+.signup-form2 input[type="email"],
+.signup-form2 input[type="file"] {
+  padding: 10px 14px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  transition: border-color 0.3s ease;
+}
+
+.signup-form2 input:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+/* Section Headings */
+.signup-form2 h4 {
+  margin-top: 20px;
+  font-size: 18px;
+  color: #555;
+}
+
+/* Buttons */
+button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 16px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+.continue-btn {
+  margin-top: 20px;
+  background-color: #28a745;
+}
+
+.continue-btn:hover {
+  background-color: #218838;
+}
+
+/* Success and Error Messages */
+.success-text {
+  color: #28a745;
+  margin-top: 20px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.error-text {
+  color: #dc3545;
+  margin-top: 20px;
+  text-align: center;
+  font-weight: 500;
+}
