@@ -20,6 +20,7 @@ function App() {
           <Route path='/super-admin-register' element={<SuperAdminRegister />} />
           <Route path='/admin-login' element={<AdminLogin />} />
           <Route path='/super-admin-create-register' element={<SuperAdminCreateRegister />} />
+          <Route path='/admin-create-register' element={<CreateAdminForm />} />
 
         </Routes>
       </BrowserRouter>

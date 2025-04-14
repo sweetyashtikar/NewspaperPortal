@@ -136,6 +136,31 @@ const SignupForm = () => {
       };
     }, []); // Empty dependency array to run only once
 
+    const handleFBLogin = () => {
+      window.FB.login(function (response) {
+        if (response.authResponse) {
+          const { accessToken, userID } = response.authResponse;
+  
+          axios.post('http://localhost:5000/auth/facebook', {
+            accessToken,
+            userID
+          })
+          .then(res => {
+            console.log('User:', res.data.user);
+            alert('Login Successful');
+          })
+          .catch(err => {
+            console.error(err);
+            alert('Login Failed');
+          });
+  
+        } else {
+          alert('Facebook login was not authorized.');
+        }
+      }, { scope: 'public_profile,email' });
+    };
+  
+
   return (
     <div className="signup-container">
       <div className="signup-box">
@@ -150,11 +175,12 @@ const SignupForm = () => {
           
           Sign in with Google
         </button>
-        <button className="social-button facebook">
+        <button className="social-button facebook" onClick={handleFBLogin}>
           <img
             src="https://img.icons8.com/color/16/000000/facebook-new.png"
             alt="Facebook"
           />
+         
           Continue with Facebook
         </button>
 

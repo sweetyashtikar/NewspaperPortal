@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import "../Style/GlobalcssLogin.css";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { MdVisibilityOff, MdVisibility } from "react-icons/md";
 
 const SignupForm = () => {
@@ -27,8 +27,9 @@ const SignupForm = () => {
     setError("");
 
     try {
-      const res = await axios.post("http://localhost:5000/auth/register", formData);
+      const res = await axios.post("http://localhost:5000/super-admin/register", formData);
       setMessage(res.data.msg);
+      Navigate('/super-admin-login')
       setFormData({ email: "", password: "", confirmPassword: "" });
     } catch (err) {
       setError(err.response?.data?.msg || "Registration failed");
@@ -119,7 +120,7 @@ const SignupForm = () => {
         {error && <p className="error-message">{error}</p>}
 
         <p className="signin-link">
-          Already have an account? <Link to="/login">Sign in</Link>
+          Already have an account? <Link to="/super-admin-login">Sign in</Link>
         </p>
       </div>
     </div>

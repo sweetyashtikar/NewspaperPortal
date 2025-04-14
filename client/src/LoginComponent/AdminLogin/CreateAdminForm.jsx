@@ -1,8 +1,29 @@
-import React, { useState } from "react";
+import React, { useState , useEffect} from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../Style/GlobalcssLogin.css";
+import {jwtDecode} from "jwt-decode"; // You need to install jwt-decode
 
 const CreateAdminForm = () => {
+  const navigate = useNavigate();
+  // Check if the user is a super admin
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      console.log("decoded", decodedToken)
+      if (decodedToken.role === "superAdmin") {
+        setIsSuperAdmin(true);
+      } else {
+       alert("unathorised user")
+      }
+    } else {
+      navigate("/login"); // Redirect to login if no token
+    }
+  }, [navigate]);
+  
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -10,31 +31,34 @@ const CreateAdminForm = () => {
     portalName: "",
     language: "",
     address: "",
-    Navbar: [""],
-    footer: { copyright: "", links: [""] },
+    Navbar: [{ title: "", link: "" }],
+    footer: {
+      copyright: "",
+      links: [{ title: "", link: "" }],
+    },
   });
 
   const [logo, setLogo] = useState(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name.includes("footer.links")) {
-      const index = parseInt(name.split(".")[2]);
+
+    if (name.startsWith("Navbar")) {
+      const [_, index, field] = name.split(".");
+      const updatedNavbar = [...formData.Navbar];
+      updatedNavbar[parseInt(index)][field] = value;
+      setFormData({ ...formData, Navbar: updatedNavbar });
+    } else if (name.startsWith("footer.links")) {
+      const [, _, index, field] = name.split(".");
       const updatedLinks = [...formData.footer.links];
-      updatedLinks[index] = value;
+      updatedLinks[parseInt(index)][field] = value;
       setFormData({
         ...formData,
         footer: { ...formData.footer, links: updatedLinks },
       });
-    } else if (name.includes("Navbar")) {
-      const index = parseInt(name.split("[")[1]);
-      const updatedNavbar = [...formData.Navbar];
-      updatedNavbar[index] = value;
-      setFormData({ ...formData, Navbar: updatedNavbar });
-    } else if (name.includes("footer.")) {
+    } else if (name.startsWith("footer.")) {
       const field = name.split(".")[1];
       setFormData({
         ...formData,
@@ -46,7 +70,10 @@ const CreateAdminForm = () => {
   };
 
   const handleAddNavbar = () => {
-    setFormData({ ...formData, Navbar: [...formData.Navbar, ""] });
+    setFormData({
+      ...formData,
+      Navbar: [...formData.Navbar, { title: "", link: "" }],
+    });
   };
 
   const handleAddFooterLink = () => {
@@ -54,7 +81,7 @@ const CreateAdminForm = () => {
       ...formData,
       footer: {
         ...formData.footer,
-        links: [...formData.footer.links, ""],
+        links: [...formData.footer.links, { title: "", link: "" }],
       },
     });
   };
@@ -63,52 +90,61 @@ const CreateAdminForm = () => {
     setLogo(e.target.files[0]);
   };
 
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      email: "",
+      contactNo: "",
+      portalName: "",
+      language: "",
+      address: "",
+      Navbar: [{ title: "", link: "" }],
+      footer: {
+        copyright: "",
+        links: [{ title: "", link: "" }],
+      },
+    });
+    setLogo(null);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     setMessage("");
     setError("");
 
     try {
+      const token = localStorage.getItem("token");
       const data = new FormData();
-      Object.entries(formData).forEach(([key, value]) => {
+
+      for (const [key, value] of Object.entries(formData)) {
         if (key === "Navbar" || key === "footer") {
           data.append(key, JSON.stringify(value));
         } else {
           data.append(key, value);
         }
-      });
-
-      if (logo) {
-        data.append("logo", logo);
       }
 
-      const response = await axios.post("/superadmin/create-admin", data, {
+      if (logo) data.append("logo", logo);
+
+      const res = await axios.post("http://localhost:5000/superadmin/create-admin  ", data, {
         headers: {
           "Content-Type": "multipart/form-data",
+          Authorization:`Bearer ${token}`,
         },
       });
 
-      setMessage(response.data.msg);
-      setFormData({
-        name: "",
-        email: "",
-        contactNo: "",
-        portalName: "",
-        language: "",
-        address: "",
-        Navbar: [""],
-        footer: { copyright: "", links: [""] },
-      });
-      setLogo(null);
+      setMessage(res.data.msg);
+      resetForm();
+      alert("form submitted")
     } catch (err) {
+      console.log("error", err)
       setError(
         err.response?.data?.msg || "Error occurred while creating admin."
       );
     }
   };
 
-  return (
+  return isSuperAdmin ?(
     <div className="createnewadminregister">
       <div className="adminlogin-box">
         <h2 className="adminlogin-heading">Create Admin</h2>
@@ -118,6 +154,7 @@ const CreateAdminForm = () => {
           onSubmit={handleSubmit}
           encType="multipart/form-data"
         >
+          {/* Basic Info */}
           <input
             name="name"
             type="text"
@@ -166,6 +203,8 @@ const CreateAdminForm = () => {
             onChange={handleChange}
             required
           />
+
+          {/* Logo */}
           <input
             type="file"
             onChange={handleLogoChange}
@@ -173,22 +212,33 @@ const CreateAdminForm = () => {
             required
           />
 
+          {/* Navbar Items */}
           <h4>Navbar Items:</h4>
           {formData.Navbar.map((item, index) => (
-            <input
-              key={index}
-              name={`Navbar[${index}]`}
-              type="text"
-              placeholder={`Navbar item ${index + 1}`}
-              value={item}
-              onChange={handleChange}
-              required
-            />
+            <div key={index}>
+              <input
+                name={`Navbar.${index}.title`}
+                type="text"
+                placeholder={`Navbar Title ${index + 1}`}
+                value={item.title}
+                onChange={handleChange}
+                required
+              />
+              <input
+                name={`Navbar.${index}.link`}
+                type="text"
+                placeholder={`Navbar Link ${index + 1}`}
+                value={item.link}
+                onChange={handleChange}
+                required
+              />
+            </div>
           ))}
           <button type="button" onClick={handleAddNavbar}>
             + Add Navbar Item
           </button>
 
+          {/* Footer */}
           <h4>Footer:</h4>
           <input
             name="footer.copyright"
@@ -198,31 +248,43 @@ const CreateAdminForm = () => {
             onChange={handleChange}
             required
           />
+
           {formData.footer.links.map((link, index) => (
-            <input
-              key={index}
-              name={`footer.links.${index}`}
-              type="text"
-              placeholder={`Footer Link ${index + 1}`}
-              value={link}
-              onChange={handleChange}
-              required
-            />
+            <div key={index}>
+              <input
+                name={`footer.links.${index}.title`}
+                type="text"
+                placeholder={`Footer Link Title ${index + 1}`}
+                value={link.title}
+                onChange={handleChange}
+                required
+              />
+              <input
+                name={`footer.links.${index}.link`}
+                type="text"
+                placeholder={`Footer Link URL ${index + 1}`}
+                value={link.link}
+                onChange={handleChange}
+                required
+              />
+            </div>
           ))}
           <button type="button" onClick={handleAddFooterLink}>
             + Add Footer Link
           </button>
 
+          {/* Submit */}
           <button type="submit" className="continue-btn">
             Create Admin
           </button>
         </form>
 
+        {/* Feedback */}
         {message && <p className="success-text">{message}</p>}
         {error && <p className="error-text">{error}</p>}
       </div>
     </div>
-  );
+  ): null;
 };
 
 export default CreateAdminForm;

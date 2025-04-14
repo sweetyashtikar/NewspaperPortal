@@ -3,12 +3,14 @@ import axios from "axios";
 import "../Style/GlobalcssLogin.css";
 import { MdAlternateEmail, MdVisibility, MdVisibilityOff } from "react-icons/md";
 import { TbLockPassword } from "react-icons/tb";
+import { useNavigate } from "react-router-dom";
 
 const LoginForm = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -21,13 +23,15 @@ const LoginForm = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/auth/login",
+        "http://localhost:5000/super-admin/login ",
         formData
       );
       setSuccess(response.data.msg);
       localStorage.setItem("token", response.data.token);
-      console.log("Logged in user:", response.data.user);
+      console.log("Logged in super admin:", response.data);
+      navigate('/admin-create-register')
     } catch (err) {
+      console.log(err)
       setError(err.response?.data?.msg || "Login failed");
     }
   };
