@@ -52,7 +52,7 @@ export const createAdmin = async (req, res) => {
     const logoFile = req.file;
 
     // Validate required fields
-    if (!name || !email || !contactNo || !portalName || !language || !address || !logoFile || !Navbar || !footer) {
+    if (!name || !email || !contactNo || !portalName || !language || !address ||  !Navbar || !footer) {
       return res.status(400).json({ msg: 'All fields including logo image are required,Navbar array, and footer object are required' });
     }
 
@@ -87,10 +87,10 @@ export const createAdmin = async (req, res) => {
       language,
       address,
       role: 'admin',
-      logo: {
-        data: logoFile.buffer,
-        contentType: logoFile.mimetype
-      },
+      // logo: {
+      //   data: logoFile.buffer,
+      //   contentType: logoFile.mimetype
+      // },
       Navbar,  // Add Navbar array to the new admin object
       footer   // Add footer object to the new admin object
     });
@@ -144,7 +144,7 @@ const sendAdminEmail = async (email, name, password, portalName) => {
         <li><strong>Password:</strong> ${password}</li>
       </ul>
       <p>
-        Please <a href="https://${portalName}.com" target="_blank">click here</a> to log in to the admin portal.
+        Please <a href="${portalName}/login" target="_blank">click here</a> to log in to the admin portal.
       </p>
       <p>Kindly log in and change your password upon first login.</p>
       <p>If you face any issues, please contact support at <strong>789274</strong>.</p>

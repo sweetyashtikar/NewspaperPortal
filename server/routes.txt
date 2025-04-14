@@ -1,0 +1,26 @@
+user
+http://localhost:5000/auth/register                 //user register
+http://localhost:5000/auth/login                    //user login
+http://localhost:5000/auth/getAllUser                //getallUsers
+
+
+admins
+http://localhost:5000/admin/login                     //admin login
+http://localhost:5000/admin/update-password           //update password 
+http://localhost:5000/admin/update-status               //active the account of the employe
+
+
+super admins
+http://localhost:5000/superadmin/create-admin                  //create the admin from the super admin page
+http://localhost:5000/superadmin/getAllAdmins                  //fetch all the admins
+http://localhost:5000/super-admin/register                     //super admin register
+http://localhost:5000/super-admin/login                        //super admin login
+
+
+
+employee
+http://localhost:5000/employee/register              //employee register
+http://localhost:5000/employee/login                  //employee login
+http://localhost:5000/employee/getAllEmployee             //get all employee
+http://localhost:5000/employee/getAllEmployee    //get all employee
+http://localhost:5000/employee/createArticle      //create a article for the employee

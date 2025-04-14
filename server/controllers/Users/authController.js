@@ -2,9 +2,20 @@ import User from "../../model/UsersModal/User.js";
 import bcrypt from "bcryptjs"
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
+import { OAuth2Client } from 'google-auth-library';
+
 
 dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET 
+const googleClientID = process.env.GOOGLE_CLIENT_ID;
+const clientSecret = process.env.GOOGLE_CLIENT_SECRET
+
+console.log("googleClientID", googleClientID)
+console.log("clientSecret",clientSecret)
+
+
+const client = new OAuth2Client(googleClientID);
+
 
 //get all the users data through pagination
 export const getAllUsers = async (req, res) => {
@@ -82,6 +93,7 @@ export const loginUser = async (req, res) => {
         const payload = {
             userId: user._id,
             email: user.email,
+            role : user.role
         };
 
         const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
@@ -90,5 +102,54 @@ export const loginUser = async (req, res) => {
     } catch (error) {
         console.error("Login error:", error);
         res.status(500).json({ msg: 'Server error' });
+    }
+};
+
+
+//copied from makeeasy 
+export const googleLoginController = async (req, res) => {
+    try {
+        const { credential } = req.body;
+        console.log("google crednetials", credential)
+
+        // Verify Google token
+        const ticket = await client.verifyIdToken({
+            idToken: credential,
+            audience: googleClientID
+        });
+
+        const { email, name } = ticket.getPayload();
+
+        // Check if user exists
+        let user = await User.findOne({ email });
+
+        if (!user) {
+            // Create new user if doesn't exist
+            user = await User.create({
+                email,
+                name,
+            });
+        }
+
+        // Generate JWT token
+        const token = jwt.sign(
+            { userId: user._id },
+            JWT_SECRET,
+            { expiresIn: '24h' }
+        );
+        console.log("User added to database:", user , "token of google login", token);
+
+        res.status(200).json({
+            msg: "user logged in",
+            token,
+            user: {
+                _id: user._id,
+                name: user.name,
+                email: user.email
+            }
+        });
+    } catch (error) {
+        console.error('Error in Google authentication:', error);
+        res.status(500).json({ message: 'Authentication failed' });
     }
 };

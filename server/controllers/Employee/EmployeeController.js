@@ -1,5 +1,6 @@
 
 import Employee from "../../model/EmployeeModal/Employee.js";
+import Admin from "../../model/AdminModal/admin.js";
 import bcrypt from "bcryptjs"
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
@@ -38,6 +39,9 @@ export const getAllEmployee = async (req, res) => {
 };
 
 export const registerEmployee = async (req, res) => {
+    const host = req.headers.host; // e.g., indiatvnews.com or www.indiatvnews.com
+    const cleanHost = host.replace('http://', '');
+    console.log("host name", host)
     const { name, email, password, confirmPassword, role, mobile, department, designation } = req.body;
     console.log("Register Request Body:", req.body);
 
@@ -46,6 +50,11 @@ export const registerEmployee = async (req, res) => {
     }
 
     try {
+          // Find the admin based on domain
+    const admin = await Admin.findOne({ portalName: cleanHost });
+    if (!admin) {
+      return res.status(400).json({ message: 'Invalid registration portal' });
+    }
         const existingemployee = await Employee.findOne({ email });
         if (existingemployee) {
             return res.status(400).json({ msg: "Email already exists. Please login." });
@@ -61,8 +70,10 @@ export const registerEmployee = async (req, res) => {
             mobile,
             department,
             designation,
+            adminId : admin._id,
             status:'pending'
         });
+        console.log("new employee", newemployee)
 
         await newemployee.save();
         res.status(201).json({ msg: 'employee registered successfully' });

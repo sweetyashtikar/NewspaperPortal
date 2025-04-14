@@ -159,6 +159,11 @@
   cursor: pointer;
   font-size: 18px;
 }
+#GoogleSignIn{
+  width: 100%;
+  border-color: white;
+  background-color: white;
+}
 
 /*=====================UserLoginForm.css======================*/
 

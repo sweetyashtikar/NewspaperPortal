@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../Style/GlobalcssLogin.css";
 import { FcGoogle } from "react-icons/fc";
@@ -36,13 +36,115 @@ const LoginForm = () => {
     }
   };
 
+  // Handle Google Sign-In Success
+  const handleGoogleSuccess = async (response) => {
+
+
+    if (!response.credential) {
+      console.error("Google credential missing");
+      return;
+    }
+
+
+    try {
+      const res = await fetch('http://localhost:5000/auth/google', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          credential: response.credential,
+        }),
+      });
+
+      const data = await res.json();
+
+
+
+      // Extract user ID from token
+      const tokenParts = data.token.split('.');
+      const payload = JSON.parse(atob(tokenParts[1]));
+      const userId = payload.userId; // Change _id to userId
+
+      const userWithId = {
+        ...data.user,
+        _id: userId,
+      };
+
+      // Create auth data object
+      const authData = { user: userWithId, token: data.token };
+      console.log("auth", authData)
+
+      // Update local storage first
+      localStorage.setItem('auth', JSON.stringify(authData));
+
+      // Then update state
+      alert("succesful")
+    } catch (error) {
+      console.error('Google login error:', error);
+
+    } finally {
+    }
+  };
+
+  // Initialize Google Sign-In - Only once on component mount
+  useEffect(() => {
+    // Load Google API Script
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
+
+    let googleInitialized = false;
+
+    script.onload = () => {
+      if (window.google && !googleInitialized) {
+        googleInitialized = true;
+        window.google.accounts.id.initialize({
+          client_id: '588239284344-1u9ukf7uq5bgugl4s898i3ap366m4cqb.apps.googleusercontent.com',
+          callback: handleGoogleSuccess,
+        });
+
+        const googleButton = document.getElementById("GoogleSignIn");
+        if (googleButton) {
+          window.google.accounts.id.renderButton(googleButton, {
+            // Leave this empty or customize minimal attributes
+            shape: "rectangular",
+          });
+        }
+      }
+    };
+
+    return () => {
+      // Clean up script on component unmount
+      const loadedScript = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
+      if (loadedScript) {
+        document.body.removeChild(loadedScript);
+      }
+      // Cancel any Google sign-in processes
+      if (window.google && window.google.accounts && window.google.accounts.id) {
+        window.google.accounts.id.cancel();
+      }
+    };
+  }, []); // Empty dependency array to run only once
+
   return (
     <div className="login-container">
       <div className="login-box">
         <h2 className="login-heading">Welcome back</h2>
 
-        <button className="social-btn google-btn">
+        {/* <button className="social-btn google-btn" id='GoogleSignIn'>
           <FcGoogle className="mr-2 text-xl" />
+          Sign in with Google
+        </button> */}
+
+        <button id='GoogleSignIn' onClick={handleGoogleSuccess}>
+          <img
+            src="https://img.icons8.com/color/16/000000/google-logo.png"
+            alt="Google"
+          />
+
           Sign in with Google
         </button>
 

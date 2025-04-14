@@ -55,3 +55,32 @@ export const loginAdmin = async (req, res) => {
     res.status(500).json({ msg: "Server error. Please try again later." });
   }
 };
+
+//this is controller to update the password of the admin with the authorization
+export const updateAdminPassword = async(req,res)=>{
+  const adminId = req.user.id;
+  const {newPassword} = req.body;
+  console.log
+
+  if(!newPassword){
+    return res.status(400).json({msg : "New password is required"})
+  }
+  try{
+    const admin = await Admin.findById(adminId)
+    if (!admin) {
+      return res.status(404).json({ msg: "Admin not found." });
+    }
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    admin.password = hashedPassword;
+    await admin.save();
+
+    res.status(200).json({ msg: "Password updated successfully." });
+  }catch(error){
+    console.error("Password update error:", err.message);
+    res.status(500).json({ msg: "Server error. Please try again later." });
+  }
+
+
+}

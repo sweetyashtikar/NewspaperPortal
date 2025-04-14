@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema({
   facebookId: String,
   name: String,
   provider: String,
+  role: { type: String,default:'users' },
 }, { timestamps: true });
 
 const User = mongoose.model('User', userSchema);
